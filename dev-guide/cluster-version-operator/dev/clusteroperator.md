@@ -173,11 +173,15 @@ In general, ClusterOperators should contain at least three core conditions:
 The change may be anything: desired user state, desired user configuration, observed configuration, version update, etc.
 If this is false, it means the operator is not trying to apply any new state.
 If it remains true for an extended period of time, it suggests something is wrong in the cluster.  It can probably wait until Monday.
+Operators should not report Progressing only because DaemonSets owned by them are adjusting to a new node from cluster scaleup or a node rebooting from cluster upgrade.
+A component in a cluster with less than 250 nodes must complete a version change within a limited period of time: 90 minutes for Machine Config Operator and 20 minutes for others. Machine Config Operator is given more time as it needs to restart control plane nodes.
 * `Available` must be true if the operand is functional and available in the cluster at the level in status.
 If this is false, it means there is an outage.  Someone is probably getting paged.
+A component must not report Available=False during the course of a normal upgrade.
 * `Degraded` should be true if the operator has encountered an error that is preventing it or its operand from working properly.
 The operand may still be available, but intent may not have been fulfilled.
 If this is true, it means that the operand is at risk of an outage or improper configuration.  It can probably wait until the morning, but someone needs to look at it.
+A component must not report Degrade=False during the course of a normal upgrade.
 
 The message reported for each of these conditions is important.
 All messages should start with a capital letter (like a sentence) and be written for an end user / admin to debug the problem.
